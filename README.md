@@ -1,32 +1,50 @@
-# React + TypeScript + Vite
+# PatchTrail
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+PatchTrail is a lightweight desktop developer tool for identifying bugs from meeting transcriptions, tickets, stack traces, and bug reports. It can propose fixes, generate regression tests, and optionally provide Git recovery commands.
 
-Currently, two official plugins are available:
+## Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Requirements: Node.js 20+, npm, and Git.
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+npm run dev
+npm run build
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+The current project is a React + TypeScript + Vite prototype. The target product is a packaged desktop application using Tauri. Tauri commands should handle local repository access and Git operations.
+
+## AI account setup
+
+PatchTrail should support provider account login through official OAuth/device authorization when that flow provides developer API access. It should also support user API keys when account login does not grant API access.
+
+Planned providers:
+
+- Gemini
+- OpenAI / ChatGPT developer API
+- Grok
+- Mock/offline provider
+
+After login or API-key validation, PatchTrail automatically selects the matching provider. Consumer chat login is not automatically equivalent to developer API access. Never scrape chat websites or store session cookies.
+
+For local development, use mock mode or environment variables that are never committed:
+
+```powershell
+$env:PATCHTRAIL_PROVIDER = "gemini"
+$env:PATCHTRAIL_API_KEY = "your-key"
+npm run dev
+```
+
+Production tokens and API keys must be stored in the operating-system credential store.
+
+## Product rules
+
+- The main flow is paste context -> identify bug -> review fix -> apply approved change.
+- Do not display a numeric confidence score.
+- Git History is optional and hidden behind a button or separate window.
+- Review patches before applying them.
+- Never execute `git reset --hard` without explicit confirmation.
+- Never send `.env`, keys, or unrelated files to an AI provider.
+- Keep a mock/offline mode for demos and tests.
+
+See `implementation_setup.md` for the complete architecture and acceptance criteria.

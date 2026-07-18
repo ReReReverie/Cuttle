@@ -1,8 +1,54 @@
 # Implementation Plan - PatchTrail (TraceForge)
 
-**PatchTrail** is an engineering workspace designed to close the gap between project discussions, bug investigation, and Git version history. It enables developers to extract tasks from unstructured transcripts, run automated bug analyses, and trace/restore previous project states with safe, guided Git terminal commands.
+---
+
+## Project Description
+
+**PatchTrail** is an AI-assisted engineering workspace that bridges the gap between team discussions, active bug investigation, and Git version history — all inside a single browser-based dashboard.
+
+### What It Does
+
+Engineering teams constantly lose time translating meeting notes into actionable tasks, manually hunting through codebases for bugs, and nervously attempting Git rollbacks they aren't sure are safe. PatchTrail solves all three problems in one unified interface.
+
+### Core Features
+
+#### 1. Meeting Transcript → Task Extraction
+Developers paste raw meeting logs, standup notes, or bug-report threads into the **Meeting & Issue Context** panel. PatchTrail's AI parser reads the unstructured text and automatically extracts discrete, actionable task cards — each tagged with a priority level (low / medium / high / critical), an assignee, a target file, and a status. Tasks are animated in one-by-one as they are identified, and every field (assignee, priority, status) is editable inline without leaving the board.
+
+#### 2. Bug Detective — AI Code Analysis & Patch Generation
+Selecting any task card focuses the **Bug Detective** panel on the relevant file context. The panel displays the current (buggy) code alongside an AI-generated diff view that highlights exactly which lines to change and why. Each suggested patch is shown with:
+- A colour-coded before/after diff (`-` red removals, `+` green additions).
+- A plain-English confidence score and root-cause summary.
+- Auto-generated regression test stubs that can be copied directly into the test suite.
+- An **Apply Fix** button that marks the task as completed and logs the action to the workspace activity ledger.
+
+#### 3. Codebase Time Machine — Safe Git Recovery
+The **Time Machine** panel renders the repository's real Git commit history as an interactive vertical timeline (falling back to a rich simulated dataset when no Git history is present). Clicking any commit reveals its metadata (author, timestamp, changed files) and surfaces a **Terminal Helper** with four pre-built, parameterised recovery commands:
+- **Explore** — `git switch --detach <hash>` to inspect without changing anything.
+- **Branch Recovery** (recommended) — `git switch -c recovery/<hash> <hash>` to create a safe recovery branch.
+- **Single File Restore** — `git restore --source=<hash> -- <file>` to recover one file without touching the rest.
+- **Hard Reset** — `git reset --hard <hash>` shown with a prominent destructive-action warning.
+
+No commands run automatically. All commands are copy-to-clipboard only, keeping the developer in full control.
+
+#### 4. Workspace Activity Ledger
+A persistent footer strip logs every significant workspace action in real time — task extractions, AI analyses, applied patches, and Git command copies — with timestamps, colour-coded event types (`info`, `ai`, `success`, `warn`), and a horizontal scroll so no history is lost.
+
+### Tech Stack
+| Layer | Technology |
+|---|---|
+| Framework | React 19 + TypeScript |
+| Build Tool | Vite 8 |
+| Styling | Tailwind CSS v4 (dark glassmorphism design system) |
+| Icons | Lucide React |
+| Git API | Vite dev-server middleware (`/api/git/*`) reading real workspace Git history |
+| AI Simulation | Client-side deterministic parser (no external API required for core features) |
+
+### Design Philosophy
+PatchTrail is intentionally backend-light. The Git API middleware runs inside the Vite dev server process itself — no separate server to start or manage. AI task extraction and bug analysis use a deterministic client-side engine by default, making the tool fully functional offline and without any API keys. The Video Transcriber (see Implementation Plan 2) is the only feature that calls an external API, and even then the key is provided at runtime by the user.
 
 ---
+
 
 ## User Review Required
 
