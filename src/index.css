@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 :root {
   /* Colors */
@@ -38,6 +39,30 @@
   --radius-lg: 16px;
   --radius-md: 10px;
   --radius-sm: 6px;
+}
+
+@theme {
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-glass-bg: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-glass-border-hover: var(--glass-border-hover);
+  --color-accent-indigo: var(--accent-indigo);
+  --color-accent-indigo-glow: var(--accent-indigo-glow);
+  --color-accent-teal: var(--accent-teal);
+  --color-accent-teal-glow: var(--accent-teal-glow);
+  --color-accent-rose: var(--accent-rose);
+  --color-accent-rose-glow: var(--accent-rose-glow);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-amber-glow: var(--accent-amber-glow);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border-color: var(--border-color);
+  
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
 }
 
 * {
