@@ -1,0 +1,231 @@
+name: Publish native Cuttle releases
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: cuttle-native-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.asset_prefix }}
+    runs-on: ${{ matrix.platform }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            asset_prefix: windows-x64-setup
+            bundle_kind: nsis
+            args: '--bundles nsis'
+            rust_targets: ''
+            is_linux: false
+            is_windows: true
+          - platform: macos-latest
+            asset_prefix: macos-arm64
+            target_triple: aarch64-apple-darwin
+            bundle_kind: dmg
+            args: '--target aarch64-apple-darwin --bundles dmg'
+            rust_targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
+            is_linux: false
+            is_windows: false
+          - platform: macos-latest
+            asset_prefix: macos-x64
+            target_triple: x86_64-apple-darwin
+            bundle_kind: dmg
+            args: '--target x86_64-apple-darwin --bundles dmg'
+            rust_targets: 'aarch64-apple-darwin,x86_64-apple-darwin'
+            is_linux: false
+            is_windows: false
+          - platform: ubuntu-22.04
+            asset_prefix: linux-x64-appimage
+            bundle_kind: appimage
+            args: '--bundles appimage'
+            rust_targets: ''
+            is_linux: true
+            is_windows: false
+          - platform: ubuntu-22.04
+            asset_prefix: linux-x64-deb
+            bundle_kind: deb
+            args: '--bundles deb'
+            rust_targets: ''
+            is_linux: true
+            is_windows: false
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Install Linux dependencies
+        if: matrix.is_linux
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            xdg-utils \
+            libfuse2 \
+            xvfb \
+            file
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Cache Rust builds
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Validate frontend build
+        run: npm run build
+
+      - name: Validate Rust tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml --locked
+
+      - name: Build and upload native bundle
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CARGO_TERM_COLOR: always
+        with:
+          tagName: cuttle-v__VERSION__
+          releaseName: Cuttle v__VERSION__
+          releaseBody: |
+            Native Cuttle judge packages.
+
+            Windows: run the portable ZIP or NSIS setup executable.
+            macOS: choose the arm64 or x64 DMG that matches the Mac.
+            Linux: use the AppImage or Debian package.
+            See release/JUDGE_TESTING.md in the repository for the offline acceptance flow.
+          releaseDraft: true
+          prerelease: false
+          releaseAssetNamePattern: 'Cuttle-v[version]-${{ matrix.asset_prefix }}[ext]'
+          uploadWorkflowArtifacts: true
+          args: ${{ matrix.args }}
+
+      - name: Smoke-test Windows executable
+        if: matrix.is_windows
+        shell: pwsh
+        run: |
+          $exe = (Resolve-Path 'src-tauri/target/release/patchtrail.exe').Path
+          $proc = Start-Process -FilePath $exe -PassThru -WindowStyle Hidden
+          Start-Sleep -Seconds 5
+          if ($proc.HasExited) { throw "Cuttle exited during startup with code $($proc.ExitCode)" }
+          Stop-Process -Id $proc.Id -Force
+
+      - name: Validate macOS DMG and architecture
+        if: startsWith(matrix.platform, 'macos')
+        run: |
+          set -euo pipefail
+          dmg="$(find "src-tauri/target/${{ matrix.target_triple }}/release/bundle/dmg" -name '*.dmg' -print -quit)"
+          test -n "$dmg"
+          hdiutil verify "$dmg"
+          mount_point="$(mktemp -d)"
+          cleanup() {
+            hdiutil detach "$mount_point" >/dev/null 2>&1 || true
+            rmdir "$mount_point" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          hdiutil attach "$dmg" -mountpoint "$mount_point" -nobrowse -readonly
+          app="$(find "$mount_point" -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$app"
+          codesign --verify --deep --strict "$app"
+          lipo -info "$app/Contents/MacOS/patchtrail"
+
+      - name: Validate Linux AppImage
+        if: matrix.bundle_kind == 'appimage'
+        run: |
+          set -euo pipefail
+          appimage="$(find src-tauri/target/release/bundle/appimage -name '*.AppImage' -print -quit)"
+          test -n "$appimage"
+          chmod +x "$appimage"
+          set +e
+          timeout 10s xvfb-run -a "$appimage" --appimage-extract-and-run >"$RUNNER_TEMP/cuttle-appimage.log" 2>&1
+          status=$?
+          set -e
+          if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
+            cat "$RUNNER_TEMP/cuttle-appimage.log"
+            exit "$status"
+          fi
+
+      - name: Validate Linux Debian package
+        if: matrix.bundle_kind == 'deb'
+        run: |
+          set -euo pipefail
+          deb="$(find src-tauri/target/release/bundle/deb -name '*.deb' -print -quit)"
+          test -n "$deb"
+          dpkg-deb --info "$deb"
+      - name: Stage portable Windows package
+        if: matrix.is_windows
+        shell: pwsh
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          $stage = Join-Path $env:RUNNER_TEMP 'Cuttle-portable'
+          New-Item -ItemType Directory -Path $stage -Force | Out-Null
+          Copy-Item src-tauri/target/release/patchtrail.exe (Join-Path $stage 'Cuttle.exe')
+          Copy-Item examples (Join-Path $stage 'examples') -Recurse
+          Copy-Item release/JUDGE_TESTING.md (Join-Path $stage 'JUDGE_TESTING.md')
+          $zip = Join-Path $env:RUNNER_TEMP "Cuttle-v$version-windows-x64-portable.zip"
+          Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -Force
+          "PORTABLE_ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload portable Windows package
+        if: matrix.is_windows
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          gh release upload "cuttle-v$version" "$env:PORTABLE_ZIP" --repo "${{ github.repository }}" --clobber
+
+  checksums:
+    name: Add release checksums
+    needs: build
+    if: ${{ needs.build.result == 'success' }}
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version="$(jq -r .version src-tauri/tauri.conf.json)"
+          mkdir -p assets
+          gh release download "cuttle-v$version" \
+            --repo "$GITHUB_REPOSITORY" \
+            --pattern 'Cuttle-*' \
+            --dir assets
+          test -n "$(find assets -maxdepth 1 -type f -name 'Cuttle-*' -print -quit)"
+
+      - name: Generate and upload SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          (cd assets && sha256sum Cuttle-* | sort -k2) > assets/SHA256SUMS.txt
+          version="$(jq -r .version src-tauri/tauri.conf.json)"
+          gh release upload "cuttle-v$version" assets/SHA256SUMS.txt \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber

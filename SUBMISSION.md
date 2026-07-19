@@ -8,12 +8,13 @@ Dev Tools — developer productivity, bug triage, code review, and safe Git reco
 
 Cuttle is a local-first desktop workspace for turning messy engineering context into reviewed action. A developer pastes or imports a meeting transcript, ticket, stack trace, or bug report; Cuttle extracts actionable tasks with owners, priorities, target files, and statuses. Selecting a task opens Bug Detective, which presents a deterministic root-cause explanation, a reviewable before/after diff, and regression-test stubs. Git History is an optional time-machine drawer backed by the selected repository's real local history. Recovery commands are parameterized and copy-only, with hard reset visibly marked destructive. The app works offline by default, optionally supports local open-source models, OpenAI, Gemini, and Grok for richer analysis, follows the system theme, and never changes repository files automatically.
 
-## Repository and judge package
+## Repository and judge packages
 
 - Repository: https://github.com/ReReReverie/PatchTrail
-- Ready-to-run package: release/PatchTrail-windows-x64.zip
-- Judge checklist: release/PatchTrail-windows-x64/JUDGE_TESTING.md
-- Tested package platform: Windows 10/11 x64
+- Native downloads: GitHub Releases (https://github.com/ReReReverie/PatchTrail/releases/latest)
+- Judge checklist: release/JUDGE_TESTING.md
+- Release targets: Windows x64, macOS Apple Silicon, macOS Intel, and Linux x64
+- Validation: Windows is locally smoke-tested; macOS and Linux packages are built and smoke-checked by native CI runners, with no manual hardware-testing claim
 
 ## Codex collaboration
 

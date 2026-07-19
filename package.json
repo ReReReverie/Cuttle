@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "desktop": "tauri dev",
-    "desktop:build": "tauri build"
+    "desktop:build": "tauri build",
+    "desktop:build:windows": "tauri build --bundles nsis",
+    "tauri": "tauri"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.8.0",

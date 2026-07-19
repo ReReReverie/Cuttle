@@ -1,29 +1,36 @@
-﻿# Cuttle
+# Cuttle
 
 Cuttle is a local-first desktop engineering workspace that turns meeting notes, tickets, stack traces, and bug reports into actionable tasks. It provides reviewable patch previews, regression-test stubs, real local Git history, and copy-only recovery commands.
 
 ## Judge quick start — no rebuild required
 
-The ready-to-run Windows package is in **release/PatchTrail-windows-x64.zip**.
+Download the latest [Cuttle GitHub Release](https://github.com/ReReReverie/PatchTrail/releases/latest) and choose the package for the judge's machine:
 
-1. Extract the ZIP.
-2. Run **PatchTrail.exe**.
-3. If Windows SmartScreen appears, choose **More info → Run anyway**. The prototype is not code-signed.
-4. Use the included sample context and select **Extract tasks**.
-5. Select a task, choose **Analyze bug**, review the patch, and open **Regression tests**.
-6. Open **Git history**. The bundled demo data works without setup; select **Choose repository** to test against any local Git repository.
+| Judge machine | Download | Launch |
+|---|---|---|
+| Windows 10/11 x64 | Cuttle-v<version>-windows-x64-portable.zip | Extract and run Cuttle.exe |
+| macOS Apple Silicon | Cuttle-v<version>-macos-arm64.dmg | Drag Cuttle to Applications |
+| macOS Intel | Cuttle-v<version>-macos-x64.dmg | Drag Cuttle to Applications |
+| Linux x64 | Cuttle-v<version>-linux-x64-appimage.AppImage | Make executable, then run |
+| Ubuntu/Debian x64 | Cuttle-v<version>-linux-x64-deb.deb | Install with the system package manager |
 
-No account, API key, network connection, Node.js, or Rust installation is required for this path. The application does not modify the selected repository, and every Git recovery command is copy-only.
+The offline demo requires no account, API key, network connection, Node.js, or Rust installation. The application does not modify the selected repository, and every Git recovery command is copy-only.
 
-See **release/PatchTrail-windows-x64/JUDGE_TESTING.md** for a two-minute acceptance checklist.
+Use [release/JUDGE_TESTING.md](release/JUDGE_TESTING.md) for the two-minute acceptance checklist and platform launch notes.
 
 ## Installation
 
-### Portable Windows build
+### Windows
 
-- Requirement: Windows 10 or 11 with Microsoft Edge WebView2 Runtime. WebView2 is included by default on supported Windows versions.
-- Extract **release/PatchTrail-windows-x64.zip** to a writable folder and launch **PatchTrail.exe**.
-- No administrator access or installer is required.
+The portable ZIP requires Windows 10/11 x64 and Microsoft Edge WebView2. Extract it to a writable folder and run Cuttle.exe; no administrator access is required. The NSIS setup executable is also available when an installer is preferred. If Windows SmartScreen appears, choose More info, then Run anyway because the prototype is not code-signed.
+
+### macOS
+
+Use the DMG matching the Mac's processor: arm64 for Apple Silicon or x64 for Intel. Drag Cuttle to Applications and open it. The build is ad-hoc signed but not notarized; if macOS blocks it, open System Settings, Privacy & Security, Open Anyway, and then relaunch.
+
+### Linux
+
+The AppImage is the most portable option: make it executable with chmod +x Cuttle-*.AppImage and run it. Use the .deb package on Ubuntu or Debian. AppImage launch may require FUSE on older distributions; the .deb package is the fallback.
 
 ### Development setup
 
@@ -33,9 +40,10 @@ Requirements:
 - Rust stable with the MSVC toolchain on Windows
 - Git
 - Microsoft Edge WebView2 Runtime on Windows
+- WebKitGTK 4.1 development packages on Linux
 
 ~~~powershell
-npm install
+npm ci
 npm run desktop
 ~~~
 
@@ -45,17 +53,18 @@ Create an optimized native executable:
 npm run desktop:build
 ~~~
 
-The executable is written to **src-tauri/target/release/cuttle.exe**. Use **npm run dev** only when working on the React interface in a browser; repository selection and real Git history require the Tauri desktop window.
+Use npm run dev only for React interface work in a browser; repository selection and real Git history require the Tauri desktop window.
 
 ## Supported platforms
 
-| Platform | Status | Notes |
+| Platform | Release target | Validation |
 |---|---|---|
-| Windows 10/11 x64 | Tested and packaged | Use the portable judge build. |
-| macOS 12+ | Source-compatible, unverified | Requires Xcode Command Line Tools and a local Tauri build. No signed package is included. |
-| Linux x64 | Source-compatible, unverified | Requires WebKitGTK and standard Tauri system dependencies. No package is included. |
+| Windows 10/11 x64 | Portable ZIP and NSIS installer | Locally smoke-tested and CI-built |
+| macOS 12+ Apple Silicon | Ad-hoc signed DMG | Native macOS CI build and package smoke check |
+| macOS 12+ Intel | Ad-hoc signed DMG | Native macOS CI build and package smoke check |
+| Linux x64 | AppImage and Debian package | Ubuntu 22.04 CI build and package smoke check |
 
-The submitted binary is Windows x64 only. The React/Tauri source is cross-platform, but macOS and Linux are not claimed as tested release targets.
+The release workflow runs on native GitHub-hosted runners, so a local Mac or Linux machine is not required to produce these artifacts. The project does not claim manual hardware testing for macOS or Linux.
 
 ## Current capabilities
 
