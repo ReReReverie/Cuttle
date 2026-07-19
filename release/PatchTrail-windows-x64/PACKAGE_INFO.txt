@@ -1,0 +1,7 @@
+﻿PatchTrail portable build
+Platform: Windows 10/11 x64
+Build type: Tauri 2 release executable
+Accounts/API keys: None
+Network required: No
+Installer/admin access: No
+Launch: PatchTrail.exe
