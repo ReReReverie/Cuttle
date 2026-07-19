@@ -1,14 +1,14 @@
-# PatchTrail
+﻿# PatchTrail
 
 PatchTrail is a local-first desktop engineering workspace that turns meeting notes, tickets, stack traces, and bug reports into actionable tasks. It provides reviewable patch previews, regression-test stubs, real local Git history, and copy-only recovery commands.
 
-## Judge quick start â€” no rebuild required
+## Judge quick start Ã¢â‚¬â€ no rebuild required
 
 The ready-to-run Windows package is in **release/PatchTrail-windows-x64.zip**.
 
 1. Extract the ZIP.
 2. Run **PatchTrail.exe**.
-3. If Windows SmartScreen appears, choose **More info â†’ Run anyway**. The prototype is not code-signed.
+3. If Windows SmartScreen appears, choose **More info Ã¢â€ â€™ Run anyway**. The prototype is not code-signed.
 4. Use the included sample context and select **Extract tasks**.
 5. Select a task, choose **Analyze bug**, review the patch, and open **Regression tests**.
 6. Open **Git history**. The bundled demo data works without setup; select **Choose repository** to test against any local Git repository.
@@ -59,7 +59,7 @@ The submitted binary is Windows x64 only. The React/Tauri source is cross-platfo
 
 ## Current capabilities
 
-- Deterministic, offline extraction of tasks from pasted engineering context
+- Deterministic, offline extraction of tasks from pasted engineering context or imported text files
 - Editable priority, owner, and status
 - Reviewable patch diff with plain-English root-cause guidance
 - Copyable regression-test stubs
@@ -79,7 +79,7 @@ Consumer chat login is not automatically equivalent to developer API access. Nev
 
 ## Product rules
 
-- The main flow is paste context â†’ identify bug â†’ review fix â†’ approve.
+- The main flow is paste context Ã¢â€ â€™ identify bug Ã¢â€ â€™ review fix Ã¢â€ â€™ approve.
 - Do not display a numeric confidence score.
 - Git history remains optional and hidden behind a button.
 - Review patches before applying them.
@@ -97,5 +97,3 @@ Codex accelerated the workflow by keeping the first version deterministic and lo
 Project Codex Session ID: 019f75e1-7962-77c1-89ea-d76694d1d97d
 
 The exact GPT-5.6 model label should be confirmed in the Codex model picker before submitting. The submission package includes SUBMISSION.md and DEMO_VIDEO_SCRIPT.md for the remaining manual hackathon fields.
-
-

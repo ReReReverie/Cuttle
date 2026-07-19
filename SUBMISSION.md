@@ -2,11 +2,11 @@
 
 ## Recommended category
 
-Dev Tools â€” developer productivity, bug triage, code review, and safe Git recovery.
+Dev Tools Ã¢â‚¬â€ developer productivity, bug triage, code review, and safe Git recovery.
 
 ## Project description
 
-PatchTrail is a local-first desktop workspace for turning messy engineering context into reviewed action. A developer pastes a meeting transcript, ticket, stack trace, or bug report; PatchTrail extracts actionable tasks with owners, priorities, target files, and statuses. Selecting a task opens Bug Detective, which presents a deterministic root-cause explanation, a reviewable before/after diff, and regression-test stubs. Git History is an optional time-machine drawer backed by the selected repository's real local history. Recovery commands are parameterized and copy-only, with hard reset visibly marked destructive. The app works offline, follows the system theme, and never changes repository files automatically.
+PatchTrail is a local-first desktop workspace for turning messy engineering context into reviewed action. A developer pastes or imports a meeting transcript, ticket, stack trace, or bug report; PatchTrail extracts actionable tasks with owners, priorities, target files, and statuses. Selecting a task opens Bug Detective, which presents a deterministic root-cause explanation, a reviewable before/after diff, and regression-test stubs. Git History is an optional time-machine drawer backed by the selected repository's real local history. Recovery commands are parameterized and copy-only, with hard reset visibly marked destructive. The app works offline, follows the system theme, and never changes repository files automatically.
 
 ## Repository and judge package
 
@@ -28,5 +28,3 @@ Codex Session ID: 019f75e1-7962-77c1-89ea-d76694d1d97d
 ## Video requirement
 
 The demonstration video is intentionally not generated in this workspace. Record a sub-three-minute screen capture with voiceover using DEMO_VIDEO_SCRIPT.md, upload it publicly to YouTube, and paste the URL into the hackathon submission form.
-
-

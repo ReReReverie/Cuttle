@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+ï»¿import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   AlertTriangle, ArrowRight, Bug, Check, CheckCircle2, ChevronDown, ClipboardList,
   Clock3, Copy, FileCode2, FolderOpen, GitBranch, History, LoaderCircle, Monitor,
@@ -39,7 +39,7 @@ interface ActivityEvent {
 }
 
 const SAMPLE_CONTEXT = [
-  "Standup — Checkout reliability",
+  "Standup â€” Checkout reliability",
   "@Mika: Checkout crashes when the coupon endpoint returns 204. Fix the response parsing in src/api/checkout.ts before release.",
   "@Noah: The retry banner stays visible after payment succeeds; investigate src/components/RetryBanner.tsx.",
   "QA: Add a regression test for a coupon with an empty response. This is release-blocking.",
@@ -75,7 +75,7 @@ function inferPriority(text: string): Priority {
 
 function makeTitle(text: string): string {
   return text
-    .replace(/^[-*•\d.)\s]+/, "")
+    .replace(/^[-*â€¢\d.)\s]+/, "")
     .replace(/^(@[\w-]+|qa|dev|engineering)\s*:\s*/i, "")
     .replace(/\s+/g, " ")
     .trim()
@@ -124,12 +124,13 @@ function formatCommitDate(value: string) {
 
 function shortPath(path: string) {
   const parts = path.replace(/\\/g, "/").split("/");
-  return parts.length > 2 ? "…/" + parts.slice(-2).join("/") : path;
+  return parts.length > 2 ? "â€¦/" + parts.slice(-2).join("/") : path;
 }
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem("patchtrail-theme") as Theme) || "system");
   const [context, setContext] = useState(SAMPLE_CONTEXT);
+  const [contextFile, setContextFile] = useState("");
   const [contextOpen, setContextOpen] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -147,6 +148,7 @@ export default function App() {
   const [activityOpen, setActivityOpen] = useState(false);
   const [activity, setActivity] = useState<ActivityEvent[]>([createEvent("info", "Workspace ready")]);
   const [copied, setCopied] = useState("");
+  const contextFileInput = useRef<HTMLInputElement>(null);
 
   const selectedTask = tasks.find((task) => task.id === selectedId) ?? null;
   const isAnalyzed = selectedTask ? analyzedTaskIds.has(selectedTask.id) : false;
@@ -176,6 +178,24 @@ export default function App() {
 
   const addActivity = (type: EventType, message: string) => {
     setActivity((events) => [createEvent(type, message), ...events].slice(0, 60));
+  };
+
+  const importContextFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      addActivity("warn", "Context file is larger than 2 MB");
+      return;
+    }
+    try {
+      setContext(await file.text());
+      setContextFile(file.name);
+      setContextOpen(true);
+      addActivity("info", "Imported context from " + file.name);
+    } catch {
+      addActivity("warn", "Could not read " + file.name);
+    }
   };
 
   const extractTasks = async () => {
@@ -327,9 +347,9 @@ export default function App() {
       <main>
         <section className="hero-row">
           <div>
-            <div className="eyebrow"><span className="live-dot" /> Offline mode · Nothing leaves this device</div>
+            <div className="eyebrow"><span className="live-dot" /> Offline mode Â· Nothing leaves this device</div>
             <h1>Turn bug context into a reviewed patch.</h1>
-            <p>Extract the work, inspect the likely fix, and keep recovery commands close—without giving up control.</p>
+            <p>Extract the work, inspect the likely fix, and keep recovery commands closeâ€”without giving up control.</p>
           </div>
           <div className="hero-stats" aria-label="Task summary">
             <div><strong>{String(taskCounts.open).padStart(2, "0")}</strong><span>Active</span></div>
@@ -343,7 +363,7 @@ export default function App() {
               <ClipboardList size={17} />
               <span>
                 <strong>Meeting & issue context</strong>
-                <small>{tasks.length ? "Context captured · edit or re-run anytime" : "Paste a transcript, ticket, or stack trace"}</small>
+                <small>{tasks.length ? "Context captured Â· edit or re-run anytime" : "Paste a transcript, ticket, or stack trace"}</small>
               </span>
             </span>
             <ChevronDown size={18} />
@@ -352,13 +372,24 @@ export default function App() {
             <div className="context-content">
               <label htmlFor="context-input">Source context</label>
               <textarea id="context-input" value={context} onChange={(event) => setContext(event.target.value)}
-                placeholder="Paste notes, a support ticket, or a stack trace…" />
+                placeholder="Paste notes, a support ticket, or a stack traceâ€¦" />
               <div className="context-footer">
-                <span><ShieldCheck size={14} /> Deterministic local parser</span>
-                <button className="primary-button" onClick={extractTasks} disabled={extracting || !context.trim()}>
-                  {extracting ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
-                  {extracting ? "Extracting…" : tasks.length ? "Extract again" : "Extract tasks"}
-                </button>
+                <div className="context-tools">
+                  <span><ShieldCheck size={14} /> Deterministic local parser</span>
+                  {contextFile && <small title={contextFile}>Loaded: {contextFile}</small>}
+                </div>
+                <div className="context-actions">
+                  <input ref={contextFileInput} className="visually-hidden" type="file"
+                    accept=".txt,.md,.log,.json,.csv,text/plain,text/markdown,application/json,text/csv"
+                    onChange={importContextFile} />
+                  <button className="secondary-button" onClick={() => contextFileInput.current?.click()}>
+                    <FolderOpen size={15} /> Import file
+                  </button>
+                  <button className="primary-button" onClick={extractTasks} disabled={extracting || !context.trim()}>
+                    {extracting ? <LoaderCircle className="spin" size={16} /> : <Sparkles size={16} />}
+                    {extracting ? "Extractingâ€¦" : tasks.length ? "Extract again" : "Extract tasks"}
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -445,14 +476,14 @@ export default function App() {
                     <p>PatchTrail will use the task context to produce a local, deterministic patch preview and test outline.</p>
                     <button className="primary-button" onClick={analyzeTask} disabled={analyzing}>
                       {analyzing ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />}
-                      {analyzing ? "Analyzing…" : "Analyze bug"}
+                      {analyzing ? "Analyzingâ€¦" : "Analyze bug"}
                     </button>
                   </div>
                 ) : (
                   <div className="analysis-results">
                     <div className="finding-banner">
                       <div className="finding-icon"><Bug size={17} /></div>
-                      <div><span>Likely root cause · High confidence</span>
+                      <div><span>Likely root cause Â· High confidence</span>
                         <p>The success path assumes every response has a JSON body. Empty responses reach the parser and throw before UI state can settle.</p>
                       </div>
                     </div>
@@ -477,7 +508,7 @@ export default function App() {
                           <div className="context-line"><span>21</span><code>{"}"}</code></div>
                         </div>
                         <div className="patch-actions">
-                          <span><ShieldCheck size={14} /> Review required · no files changed yet</span>
+                          <span><ShieldCheck size={14} /> Review required Â· no files changed yet</span>
                           <button className="approve-button" onClick={approveFix} disabled={selectedTask.status === "done"}>
                             {selectedTask.status === "done" ? <Check size={16} /> : <Sparkles size={16} />}
                             {selectedTask.status === "done" ? "Patch approved" : "Approve fix"}
@@ -551,7 +582,7 @@ export default function App() {
                   <button key={commit.hash} className={"commit-item " + (commit.hash === selectedCommit.hash ? "selected" : "")}
                     onClick={() => void selectCommit(commit)}>
                     <span className="commit-node" /><strong>{commit.subject}</strong>
-                    <span>{commit.shortHash} · {formatCommitDate(commit.timestamp)}</span>
+                    <span>{commit.shortHash} Â· {formatCommitDate(commit.timestamp)}</span>
                   </button>
                 ))}</div>
               </div>

@@ -474,3 +474,57 @@ main { width: min(1380px, calc(100% - 56px)); margin: 0 auto; }
     scroll-behavior: auto !important; animation-duration: 0.01ms !important; transition-duration: 0.01ms !important;
   }
 }
+.context-tools, .context-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.context-tools small {
+  max-width: 180px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.context-actions {
+  justify-content: flex-end;
+}
+.secondary-button {
+  min-height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--surface-raised);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  transition: 160ms ease;
+}
+.secondary-button:hover {
+  border-color: var(--line-strong);
+  transform: translateY(-1px);
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+@media (max-width: 620px) {
+  .context-tools, .context-actions {
+    width: 100%;
+  }
+  .context-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
