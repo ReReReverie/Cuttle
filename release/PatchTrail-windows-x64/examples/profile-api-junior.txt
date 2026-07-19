@@ -1,8 +1,0 @@
-Profile API practice - junior
-
-@Noah: The profile screen crashes when an account has been deleted. The loader in src/profile/loadProfile.ts parses the 404 body as a successful profile. Handle the response status before parsing JSON and return null for a missing profile.
-
-QA: Add a regression test in src/profile/loadProfile.test.ts for a 404 response, and keep parsing valid JSON for a 200 response.
-
-Please review the error path and the patch before applying it.
-

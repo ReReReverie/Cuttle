@@ -1,8 +1,0 @@
-Todo list practice - student
-
-@Mia: Clicking the complete button for an id that was removed from the list throws in src/todos/toggleTodo.ts. Add a guard so a missing todo leaves the list unchanged.
-
-QA: Add a regression test in src/todos/toggleTodo.test.ts for a missing id and keep the existing toggle behavior for a known id.
-
-Please review the patch before applying it.
-

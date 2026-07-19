@@ -1,6 +1,6 @@
-# PatchTrail example fixtures
+# Cuttle example fixtures
 
-This folder contains small, intentionally buggy test repositories for trying the PatchTrail workflow. Each ticket is self-contained in its own folder with the ticket transcript, buggy source, and matching regression tests. The source files are not wired into the production build.
+This folder contains small, intentionally buggy test repositories for trying the Cuttle workflow. Each ticket is self-contained in its own folder with the ticket transcript, buggy source, and matching regression tests. The source files are not wired into the production build.
 
 ## Fixture layout
 
@@ -26,7 +26,7 @@ Every new fixture uses a level suffix in its filename. The suffix describes the 
 
 ## Quick start
 
-1. In PatchTrail, open the **Meeting & issue context** panel.
+1. In Cuttle, open the **Meeting & issue context** panel.
 2. Import a fixture's `*.txt` transcript, or paste its contents into the panel.
 3. Click **Extract tasks**.
 4. Select a task and click **Analyze bug**.
@@ -45,4 +45,4 @@ The fixtures are safe to inspect, modify, or copy into a separate test repositor
 | Regional cart cache | [`cart-cache-mid/cart-cache-mid.txt`](cart-cache-mid/cart-cache-mid.txt) | [`cart-cache-mid/cart-cache-mid.ts`](cart-cache-mid/cart-cache-mid.ts) | [`cart-cache-mid/cart-cache-mid.test.ts`](cart-cache-mid/cart-cache-mid.test.ts) |
 | Payment idempotency | [`payment-idempotency-senior/payment-idempotency-senior.txt`](payment-idempotency-senior/payment-idempotency-senior.txt) | [`payment-idempotency-senior/payment-idempotency-senior.ts`](payment-idempotency-senior/payment-idempotency-senior.ts) | [`payment-idempotency-senior/payment-idempotency-senior.test.ts`](payment-idempotency-senior/payment-idempotency-senior.test.ts) |
 
-The expected test files use Vitest syntax as readable test specifications. They are included as reference fixtures and are not part of the PatchTrail production build.
+The expected test files use Vitest syntax as readable test specifications. They are included as reference fixtures and are not part of the Cuttle production build.

@@ -1,16 +1,16 @@
-# PatchTrail demo video script
+# Cuttle demo video script
 
 Target duration: 2 minutes 20 seconds. Record the application window and use voice narration. Do not include copyrighted music or third-party branded material.
 
 ## 0:00–0:15 — What it is
 
-“PatchTrail is a local-first developer tool that turns meeting notes and bug reports into reviewed engineering work. It runs as a native desktop app, works offline, and keeps Git recovery under the developer's control.”
+“Cuttle is a local-first developer tool that turns meeting notes and bug reports into reviewed engineering work. It runs as a native desktop app, works offline, and keeps Git recovery under the developer's control.”
 
 ## 0:15–0:45 — Extract tasks
 
 Open the app with the sample context visible. Click Extract tasks.
 
-“I paste a short checkout incident transcript. PatchTrail deterministically extracts separate tasks with owners, priorities, statuses, and target files. The task queue keeps the first screen focused on the work that needs attention.”
+“I paste a short checkout incident transcript. Cuttle deterministically extracts separate tasks with owners, priorities, statuses, and target files. The task queue keeps the first screen focused on the work that needs attention.”
 
 ## 0:45–1:20 — Review a bug
 

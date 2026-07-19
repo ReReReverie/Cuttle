@@ -1,0 +1,8 @@
+Regional cart cache practice - mid
+
+@Sam: Customers switching between the US and EU storefronts sometimes see the wrong cart. The cache in examples/cart-cache-mid/cart-cache-mid.ts uses only the user id, so the region is ignored. Include the storefront region in the cache key and add a regression test.
+
+QA: Add tests in examples/cart-cache-mid/cart-cache-mid.test.ts proving that the same user can have independent US and EU carts, while repeated reads for one region still use the cache.
+
+Please review the cache boundary and the patch before applying it.
+

@@ -1,8 +1,0 @@
-Payment idempotency practice - senior
-
-@Lea: A reused idempotency key from one account can return the previous account's payment result. The helper in src/payments/chargeOnce.ts keys completed payments by request key alone. Scope the stored result to the account and add a regression test for two accounts using the same key.
-
-Security review: Keep retries for the same account and key idempotent, but never share a payment result across accounts. Add coverage in src/payments/chargeOnce.test.ts.
-
-Please review the data-isolation boundary carefully before applying the patch.
-

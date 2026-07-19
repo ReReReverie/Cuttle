@@ -82,7 +82,7 @@ const AI_PROVIDERS: Record<AiProvider, ProviderDetails> = {
       "Start its OpenAI-compatible local server.",
       "Enter the loopback server URL and exact model name below.",
     ],
-    notice: "Only localhost and loopback addresses are accepted. PatchTrail blocks remote custom endpoints and redirects.",
+    notice: "Only localhost and loopback addresses are accepted. Cuttle blocks remote custom endpoints and redirects.",
   },
   openai: {
     name: "OpenAI API",
@@ -96,7 +96,7 @@ const AI_PROVIDERS: Record<AiProvider, ProviderDetails> = {
       "Create a secret API key.",
       "Paste the key below, then analyze a selected task.",
     ],
-    notice: "ChatGPT subscriptions and API billing are separate. PatchTrail never reads ChatGPT browser sessions or cookies.",
+    notice: "ChatGPT subscriptions and API billing are separate. Cuttle never reads ChatGPT browser sessions or cookies.",
   },
   gemini: {
     name: "Gemini API",
@@ -565,7 +565,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <div className="brand-mark"><GitBranch size={18} /></div>
-          <div><strong>PatchTrail</strong><span>Local engineering workspace</span></div>
+          <div><strong>Cuttle</strong><span>Local engineering workspace</span></div>
         </div>
         <div className="topbar-actions">
           <button className="quiet-button repo-button" onClick={chooseRepository} title="Choose repository">
@@ -805,7 +805,7 @@ export default function App() {
                   <div className="analysis-gate">
                     <div className="analysis-glyph"><Sparkles size={24} /></div>
                     <h3>Ready to inspect this issue</h3>
-                    <p>{provider === "offline" ? "PatchTrail will produce a deterministic local analysis, patch preview, and test outline." : "PatchTrail will send only this task's title, description, and target path to " + AI_PROVIDERS[provider].name + ". Patch previews and tests remain local."}</p>
+                    <p>{provider === "offline" ? "Cuttle will produce a deterministic local analysis, patch preview, and test outline." : "Cuttle will send only this task's title, description, and target path to " + AI_PROVIDERS[provider].name + ". Patch previews and tests remain local."}</p>
                     <button className="primary-button" onClick={analyzeTask} disabled={analyzing}>
                       {analyzing ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />}
                       {analyzing ? "Analyzing…" : "Analyze bug"}
@@ -954,7 +954,7 @@ export default function App() {
                 </div>
                 <div className="terminal-helper">
                   <div className="terminal-title"><Terminal size={15} /><span>Recovery commands</span></div>
-                  <p>Commands are copied only. PatchTrail never runs recovery actions for you.</p>
+                  <p>Commands are copied only. Cuttle never runs recovery actions for you.</p>
                   {commands.map((item) => (
                     <div className={"command-row " + item.tone} key={item.id}>
                       <div className="command-label"><strong>{item.title}</strong><span>{item.note}</span></div>

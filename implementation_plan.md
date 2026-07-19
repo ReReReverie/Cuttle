@@ -1,19 +1,19 @@
-# Implementation Plan - PatchTrail (TraceForge)
+# Implementation Plan - Cuttle
 
 ---
 
 ## Project Description
 
-**PatchTrail** is an AI-assisted engineering workspace that bridges the gap between team discussions, active bug investigation, and Git version history — all inside a single browser-based dashboard.
+**Cuttle** is an AI-assisted engineering workspace that bridges the gap between team discussions, active bug investigation, and Git version history — all inside a single browser-based dashboard.
 
 ### What It Does
 
-Engineering teams constantly lose time translating meeting notes into actionable tasks, manually hunting through codebases for bugs, and nervously attempting Git rollbacks they aren't sure are safe. PatchTrail solves all three problems in one unified interface.
+Engineering teams constantly lose time translating meeting notes into actionable tasks, manually hunting through codebases for bugs, and nervously attempting Git rollbacks they aren't sure are safe. Cuttle solves all three problems in one unified interface.
 
 ### Core Features
 
 #### 1. Meeting Transcript → Task Extraction
-Developers paste raw meeting logs, standup notes, or bug-report threads into the **Meeting & Issue Context** panel. PatchTrail's AI parser reads the unstructured text and automatically extracts discrete, actionable task cards — each tagged with a priority level (low / medium / high / critical), an assignee, a target file, and a status. Tasks are animated in one-by-one as they are identified, and every field (assignee, priority, status) is editable inline without leaving the board.
+Developers paste raw meeting logs, standup notes, or bug-report threads into the **Meeting & Issue Context** panel. Cuttle's AI parser reads the unstructured text and automatically extracts discrete, actionable task cards — each tagged with a priority level (low / medium / high / critical), an assignee, a target file, and a status. Tasks are animated in one-by-one as they are identified, and every field (assignee, priority, status) is editable inline without leaving the board.
 
 #### 2. Bug Detective — AI Code Analysis & Patch Generation
 Selecting any task card focuses the **Bug Detective** panel on the relevant file context. The panel displays the current (buggy) code alongside an AI-generated diff view that highlights exactly which lines to change and why. Each suggested patch is shown with:
@@ -45,7 +45,7 @@ A persistent footer strip logs every significant workspace action in real time �
 | AI Simulation | Client-side deterministic parser (no external API required for core features) |
 
 ### Design Philosophy
-PatchTrail is intentionally backend-light. The Git API middleware runs inside the Vite dev server process itself — no separate server to start or manage. AI task extraction and bug analysis use a deterministic client-side engine by default, making the tool fully functional offline and without any API keys. The Video Transcriber (see Implementation Plan 2) is the only feature that calls an external API, and even then the key is provided at runtime by the user.
+Cuttle is intentionally backend-light. The Git API middleware runs inside the Vite dev server process itself — no separate server to start or manage. AI task extraction and bug analysis use a deterministic client-side engine by default, making the tool fully functional offline and without any API keys. The Video Transcriber (see Implementation Plan 2) is the only feature that calls an external API, and even then the key is provided at runtime by the user.
 
 ---
 

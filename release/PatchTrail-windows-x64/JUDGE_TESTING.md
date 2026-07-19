@@ -1,4 +1,4 @@
-﻿# PatchTrail judge testing
+﻿# Cuttle judge testing
 
 This package runs without a build, account, API key, or network connection.
 
@@ -14,7 +14,7 @@ This package runs without a build, account, API key, or network connection.
 8. Click Approve fix and confirm that the task is completed and the activity counter updates.
 9. Open Git history. Demo history is immediately available.
 10. Optional: click Choose repository and select a local Git repository. Confirm that its commits and changed files load.
-11. Copy Branch recovery or Restore one file. Confirm that PatchTrail only copies the command and does not run it.
+11. Copy Branch recovery or Restore one file. Confirm that Cuttle only copies the command and does not run it.
 12. Inspect Hard reset and confirm that it is visibly marked destructive.
 
 ## Optional AI provider tests

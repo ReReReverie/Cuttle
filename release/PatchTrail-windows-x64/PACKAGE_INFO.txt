@@ -1,4 +1,4 @@
-﻿PatchTrail portable build
+﻿Cuttle portable build
 Platform: Windows 10/11 x64
 Build type: Tauri 2 release executable
 Accounts/API keys: None for offline/local defaults; optional for cloud AI

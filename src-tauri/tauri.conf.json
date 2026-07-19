@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "PatchTrail",
+  "productName": "Cuttle",
   "version": "0.1.0",
   "identifier": "dev.patchtrail.desktop",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "PatchTrail",
+        "title": "Cuttle",
         "width": 1440,
         "height": 900,
         "minWidth": 900,

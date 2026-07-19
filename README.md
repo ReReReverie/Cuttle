@@ -1,6 +1,6 @@
-﻿# PatchTrail
+﻿# Cuttle
 
-PatchTrail is a local-first desktop engineering workspace that turns meeting notes, tickets, stack traces, and bug reports into actionable tasks. It provides reviewable patch previews, regression-test stubs, real local Git history, and copy-only recovery commands.
+Cuttle is a local-first desktop engineering workspace that turns meeting notes, tickets, stack traces, and bug reports into actionable tasks. It provides reviewable patch previews, regression-test stubs, real local Git history, and copy-only recovery commands.
 
 ## Judge quick start Ã¢â‚¬â€ no rebuild required
 
@@ -45,7 +45,7 @@ Create an optimized native executable:
 npm run desktop:build
 ~~~
 
-The executable is written to **src-tauri/target/release/patchtrail.exe**. Use **npm run dev** only when working on the React interface in a browser; repository selection and real Git history require the Tauri desktop window.
+The executable is written to **src-tauri/target/release/cuttle.exe**. Use **npm run dev** only when working on the React interface in a browser; repository selection and real Git history require the Tauri desktop window.
 
 ## Supported platforms
 
@@ -74,7 +74,7 @@ No Git recovery command runs automatically. Approving a suggested fix currently 
 
 ## AI providers
 
-PatchTrail works without AI credentials in **Offline demo** mode. Bug Detective can also use one of four user-controlled providers:
+Cuttle works without AI credentials in **Offline demo** mode. Bug Detective can also use one of four user-controlled providers:
 
 | Provider | Default model | Account or key | Network behavior |
 | --- | --- | --- | --- |
@@ -83,7 +83,7 @@ PatchTrail works without AI credentials in **Offline demo** mode. Bug Detective 
 | Gemini API | `gemini-3.5-flash` | Google AI Studio API key | Fixed Google Generative Language endpoint |
 | Grok API | `grok-4.5` | xAI API key | Fixed `api.x.ai` endpoint |
 
-Provider keys, local tokens, model names, and the local server URL are held in application memory only and are cleared when PatchTrail closes. They are never written to localStorage or repository files. Cloud requests contain only the selected task title, description, and target-file path. PatchTrail does not scrape consumer chat sites or reuse browser sessions.
+Provider keys, local tokens, model names, and the local server URL are held in application memory only and are cleared when Cuttle closes. They are never written to localStorage or repository files. Cloud requests contain only the selected task title, description, and target-file path. Cuttle does not scrape consumer chat sites or reuse browser sessions.
 
 The local provider accepts OpenAI-compatible `/v1/chat/completions` servers on `localhost`, `127.0.0.1`, or `::1`. Remote custom hosts, embedded URL credentials, query strings, fragments, and HTTP redirects are rejected by the Rust backend.
 
@@ -100,7 +100,7 @@ The local provider accepts OpenAI-compatible `/v1/chat/completions` servers on `
 
 Recommended category: Dev Tools.
 
-PatchTrail was brainstormed in Codex, planned in Codex, and built collaboratively with Codex. Codex translated the implementation plan into a native Tauri desktop app, implemented the React workflow and Rust Git bridge, resolved Windows build/toolchain issues, added system-aware theming, created the offline demo fixture, and verified the frontend build, Rust backend, native executable, portable ZIP, and clean-package launch.
+Cuttle was brainstormed in Codex, planned in Codex, and built collaboratively with Codex. Codex translated the implementation plan into a native Tauri desktop app, implemented the React workflow and Rust Git bridge, resolved Windows build/toolchain issues, added system-aware theming, created the offline demo fixture, and verified the frontend build, Rust backend, native executable, portable ZIP, and clean-package launch.
 
 Codex accelerated the workflow by keeping the first version deterministic and local: task extraction, patch previews, regression-test stubs, demo history, and the activity ledger work without external API credentials. Key product decisions were made deliberately: advanced features stay behind focused controls, patches require review, and Git recovery commands are copy-only.
 
@@ -125,7 +125,7 @@ LM Studio is also supported: load a model, start the local server in its Develop
 
 1. Create a key at [OpenAI Platform](https://platform.openai.com/api-keys) and configure API billing.
 2. Choose **OpenAI API**, paste the key, and confirm the model available to the account.
-3. ChatGPT subscriptions and API billing are separate; PatchTrail does not use ChatGPT cookies or sessions.
+3. ChatGPT subscriptions and API billing are separate; Cuttle does not use ChatGPT cookies or sessions.
 
 #### Gemini API
 

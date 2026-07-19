@@ -1,0 +1,8 @@
+Todo list bug report - student
+
+@Mia (student): Why does the whole todo list crash just because I clicked Complete on an item that had already been removed? I was only trying to finish my homework, and now the page throws an error instead of doing nothing. Please fix examples/task-list-student/task-list-student.ts so a missing todo id is ignored and the rest of my list stays there.
+
+QA: Add a regression test in examples/task-list-student/task-list-student.test.ts for a missing id and keep the existing toggle behavior for a known id.
+
+Please review the patch before applying it.
+

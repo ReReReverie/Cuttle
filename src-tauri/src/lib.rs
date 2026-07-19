@@ -276,7 +276,7 @@ struct AiInsight {
 
 fn analysis_prompt(task_title: &str, task_description: &str, target_file: &str) -> String {
     format!(
-        "You are PatchTrail Bug Detective. Analyze this engineering task and respond in 3 concise paragraphs: (1) likely root cause, (2) a safe fix recommendation, and (3) one regression test idea. Do not claim to have edited files. Keep it under 180 words.\n\nTask: {task_title}\nContext: {task_description}\nTarget file: {target_file}"
+        "You are Cuttle Bug Detective. Analyze this engineering task and respond in 3 concise paragraphs: (1) likely root cause, (2) a safe fix recommendation, and (3) one regression test idea. Do not claim to have edited files. Keep it under 180 words.\n\nTask: {task_title}\nContext: {task_description}\nTarget file: {target_file}"
     )
 }
 
@@ -516,7 +516,7 @@ pub fn run() {
             ai_analyze
         ])
         .run(tauri::generate_context!())
-        .expect("error while running PatchTrail");
+        .expect("error while running Cuttle");
 }
 
 fn run_git_at(repository: &Path, args: &[&str]) -> Result<Output, String> {

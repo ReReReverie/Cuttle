@@ -2,7 +2,7 @@
 name = "patchtrail"
 version = "0.1.0"
 description = "A local-first engineering workspace for bug triage and safe Git recovery"
-authors = ["PatchTrail"]
+authors = ["Cuttle"]
 edition = "2021"
 
 [lib]
