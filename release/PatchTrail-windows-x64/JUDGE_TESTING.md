@@ -17,13 +17,24 @@ This package runs without a build, account, API key, or network connection.
 11. Copy Branch recovery or Restore one file. Confirm that PatchTrail only copies the command and does not run it.
 12. Inspect Hard reset and confirm that it is visibly marked destructive.
 
+## Optional AI provider tests
+
+The full acceptance test above works offline. To test another provider, open **AI provider**, select it, follow its popup checklist, configure the model/key, select a task, and click **Analyze bug**.
+
+- **Local open-source:** Start Ollama at `http://127.0.0.1:11434/v1` or LM Studio at `http://127.0.0.1:1234/v1`, then enter the exact loaded model name. A token is optional.
+- **OpenAI:** Create a key at https://platform.openai.com/api-keys and configure API billing.
+- **Gemini:** Create a key at https://aistudio.google.com/apikey and configure its Google project if required.
+- **Grok:** Create a key and credits at https://console.x.ai/.
+
+A successful result is labeled with the selected provider and actual model. Credentials are held only in memory and clear when the app closes. Local custom endpoints are restricted to loopback addresses; cloud providers use fixed official hosts.
+
 ## Expected safety behavior
 
 - The application never executes recovery commands.
 - Approve fix records approval and completes the task; it does not edit repository files.
 - Repository reads use fixed Git arguments through the native Rust backend.
 - Invalid folders and commit hashes return user-visible errors.
-- All transcript parsing and patch generation in this build are deterministic and local.
+- Transcript parsing and patch generation remain deterministic and local. Only optional Bug Detective analysis uses the selected provider.
 
 ## Troubleshooting
 

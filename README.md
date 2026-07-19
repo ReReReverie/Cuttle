@@ -71,11 +71,20 @@ The submitted binary is Windows x64 only. The React/Tauri source is cross-platfo
 
 No Git recovery command runs automatically. Approving a suggested fix currently completes the task and records the review; it does not modify repository files.
 
-## AI provider direction
+## AI providers
 
-The current implementation is intentionally functional offline. A future provider layer may support Gemini, OpenAI, Grok, and mock mode. Provider credentials must use the operating-system credential store, and unrelated repository files must never be sent to a provider.
+PatchTrail works without AI credentials in **Offline demo** mode. Bug Detective can also use one of four user-controlled providers:
 
-Consumer chat login is not automatically equivalent to developer API access. Never scrape chat websites or store session cookies.
+| Provider | Default model | Account or key | Network behavior |
+| --- | --- | --- | --- |
+| Local open-source | `gpt-oss:20b` | None by default | Loopback-only Ollama or LM Studio server |
+| OpenAI API | `gpt-5.6-sol` | OpenAI Platform API key | Fixed `api.openai.com` endpoint |
+| Gemini API | `gemini-3.5-flash` | Google AI Studio API key | Fixed Google Generative Language endpoint |
+| Grok API | `grok-4.5` | xAI API key | Fixed `api.x.ai` endpoint |
+
+Provider keys, local tokens, model names, and the local server URL are held in application memory only and are cleared when PatchTrail closes. They are never written to localStorage or repository files. Cloud requests contain only the selected task title, description, and target-file path. PatchTrail does not scrape consumer chat sites or reuse browser sessions.
+
+The local provider accepts OpenAI-compatible `/v1/chat/completions` servers on `localhost`, `127.0.0.1`, or `::1`. Remote custom hosts, embedded URL credentials, query strings, fragments, and HTTP redirects are rejected by the Rust backend.
 
 ## Product rules
 
@@ -97,3 +106,34 @@ Codex accelerated the workflow by keeping the first version deterministic and lo
 Project Codex Session ID: 019f75e1-7962-77c1-89ea-d76694d1d97d
 
 The exact GPT-5.6 model label should be confirmed in the Codex model picker before submitting. The submission package includes SUBMISSION.md and DEMO_VIDEO_SCRIPT.md for the remaining manual hackathon fields.
+
+### AI provider setup
+
+Open **AI provider** in the top-right corner and choose a mode. The popup displays the matching checklist, model field, credential field, and a copyable official setup page.
+
+#### Local open-source model with Ollama
+
+1. Install [Ollama](https://ollama.com/download) on Windows, macOS, or Linux.
+2. Pull a model, for example `ollama pull gpt-oss:20b`.
+3. Keep Ollama running. Its OpenAI-compatible URL is normally `http://127.0.0.1:11434/v1`.
+4. Choose **Local open-source**, enter the exact pulled model name, and analyze a task. No token is required for Ollama's default local configuration.
+
+LM Studio is also supported: load a model, start the local server in its Developer tab, and use `http://127.0.0.1:1234/v1`. If LM Studio authentication is enabled, paste its local server token into the optional token field.
+
+#### OpenAI API
+
+1. Create a key at [OpenAI Platform](https://platform.openai.com/api-keys) and configure API billing.
+2. Choose **OpenAI API**, paste the key, and confirm the model available to the account.
+3. ChatGPT subscriptions and API billing are separate; PatchTrail does not use ChatGPT cookies or sessions.
+
+#### Gemini API
+
+1. Create a key in [Google AI Studio](https://aistudio.google.com/apikey) and configure the associated project/billing if required.
+2. Choose **Gemini API**, paste the key, and use `gemini-3.5-flash` or another compatible model available to the project.
+
+#### Grok API
+
+1. Create an API key and configure credits in the [xAI Console](https://console.x.ai/).
+2. Choose **Grok API**, paste the key, and use `grok-4.5` or another model available to the API team.
+
+Select an extracted task and click **Analyze bug** after configuration. Judges can test every core workflow in **Offline demo** mode without an account, key, billing, local model installation, or network access.

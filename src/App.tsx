@@ -3,7 +3,7 @@ import {
   AlertTriangle, ArrowRight, Bug, Check, CheckCircle2, ChevronDown, ClipboardList,
   Clock3, Copy, FileCode2, FolderOpen, GitBranch, History, LoaderCircle, Monitor,
   Moon, PanelBottom, Play, Search, ShieldCheck, Sparkles, Sun, Terminal, TestTube2,
-  UserRound, X,
+  KeyRound, UserRound, X,
 } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -12,6 +12,7 @@ type Priority = "low" | "medium" | "high" | "critical";
 type TaskStatus = "open" | "in_progress" | "done";
 type Theme = "system" | "dark" | "light";
 type EventType = "info" | "ai" | "success" | "warn";
+type AiProvider = "offline" | "local" | "openai" | "gemini" | "grok";
 
 interface Task {
   id: string;
@@ -37,6 +38,88 @@ interface ActivityEvent {
   message: string;
   timestamp: string;
 }
+
+interface AiInsight {
+  text: string;
+  model: string;
+  provider: string;
+}
+
+interface ProviderDetails {
+  name: string;
+  description: string;
+  model: string;
+  setupUrl?: string;
+  setupLabel?: string;
+  steps: string[];
+  notice: string;
+}
+
+const AI_PROVIDERS: Record<AiProvider, ProviderDetails> = {
+  offline: {
+    name: "Offline demo",
+    description: "Deterministic analysis; no model or network",
+    model: "offline",
+    steps: [],
+    notice: "Everything stays on this device.",
+  },
+  local: {
+    name: "Local open-source",
+    description: "Ollama or LM Studio on this computer",
+    model: "gpt-oss:20b",
+    setupUrl: "https://docs.ollama.com/api/openai-compatibility",
+    setupLabel: "Copy local setup guide",
+    steps: [
+      "Install Ollama or LM Studio.",
+      "Download or load an instruction-tuned coding model.",
+      "Start its OpenAI-compatible local server.",
+      "Enter the loopback server URL and exact model name below.",
+    ],
+    notice: "Only localhost and loopback addresses are accepted. PatchTrail blocks remote custom endpoints and redirects.",
+  },
+  openai: {
+    name: "OpenAI API",
+    description: "Your OpenAI Platform key and billing",
+    model: "gpt-5.6-sol",
+    setupUrl: "https://platform.openai.com/api-keys",
+    setupLabel: "Copy OpenAI key page",
+    steps: [
+      "Sign in to OpenAI Platform.",
+      "Enable API billing or credits.",
+      "Create a secret API key.",
+      "Paste the key below, then analyze a selected task.",
+    ],
+    notice: "ChatGPT subscriptions and API billing are separate. PatchTrail never reads ChatGPT browser sessions or cookies.",
+  },
+  gemini: {
+    name: "Gemini API",
+    description: "Your Google AI Studio API key",
+    model: "gemini-3.5-flash",
+    setupUrl: "https://aistudio.google.com/apikey",
+    setupLabel: "Copy Gemini key page",
+    steps: [
+      "Sign in to Google AI Studio.",
+      "Create or select a Google Cloud project.",
+      "Create a Gemini API key and configure billing if required.",
+      "Paste the key below, then analyze a selected task.",
+    ],
+    notice: "Gemini requests go only to Google's fixed Generative Language API host.",
+  },
+  grok: {
+    name: "Grok API",
+    description: "Your xAI Console API key and credits",
+    model: "grok-4.5",
+    setupUrl: "https://console.x.ai/",
+    setupLabel: "Copy xAI Console page",
+    steps: [
+      "Sign in to the xAI Console.",
+      "Create an API team and add credits or billing.",
+      "Create an xAI API key.",
+      "Paste the key below, then analyze a selected task.",
+    ],
+    notice: "A grok.com consumer session is not used as an API credential.",
+  },
+};
 
 const SAMPLE_CONTEXT = [
   "Standup — Checkout reliability",
@@ -148,6 +231,18 @@ export default function App() {
   const [activityOpen, setActivityOpen] = useState(false);
   const [activity, setActivity] = useState<ActivityEvent[]>([createEvent("info", "Workspace ready")]);
   const [copied, setCopied] = useState("");
+  const [provider, setProvider] = useState<AiProvider>("offline");
+  const [apiKeys, setApiKeys] = useState<Record<AiProvider, string>>({ offline: "", local: "", openai: "", gemini: "", grok: "" });
+  const [providerModels, setProviderModels] = useState<Record<AiProvider, string>>(() => ({
+    offline: AI_PROVIDERS.offline.model,
+    local: AI_PROVIDERS.local.model,
+    openai: AI_PROVIDERS.openai.model,
+    gemini: AI_PROVIDERS.gemini.model,
+    grok: AI_PROVIDERS.grok.model,
+  }));
+  const [localBaseUrl, setLocalBaseUrl] = useState("http://127.0.0.1:11434/v1");
+  const [providerOpen, setProviderOpen] = useState(false);
+  const [aiInsight, setAiInsight] = useState<AiInsight | null>(null);
   const contextFileInput = useRef<HTMLInputElement>(null);
 
   const selectedTask = tasks.find((task) => task.id === selectedId) ?? null;
@@ -214,6 +309,7 @@ export default function App() {
       setTasks((current) => [...current, task]);
     }
     setSelectedId(parsed[0].id);
+    setAiInsight(null);
     setExtracting(false);
     setContextOpen(false);
     addActivity("ai", "Extracted " + parsed.length + " actionable task" + (parsed.length === 1 ? "" : "s"));
@@ -223,14 +319,57 @@ export default function App() {
     setTasks((current) => current.map((task) => (task.id === id ? { ...task, ...patch } : task)));
   };
 
-  const analyzeTask = () => {
+  const analyzeTask = async () => {
     if (!selectedTask || analyzing) return;
     const task = selectedTask;
     setAnalyzing(true);
+    setAiInsight(null);
+
+    if (provider !== "offline") {
+      const details = AI_PROVIDERS[provider];
+      const key = apiKeys[provider].trim();
+      if (provider !== "local" && !key) {
+        setAnalyzing(false);
+        setProviderOpen(true);
+        addActivity("warn", "Add an API key for " + details.name + " before analyzing");
+        return;
+      }
+      if (!providerModels[provider].trim()) {
+        setAnalyzing(false);
+        setProviderOpen(true);
+        addActivity("warn", "Add a model name for " + details.name);
+        return;
+      }
+      if (!isTauri()) {
+        setAnalyzing(false);
+        addActivity("warn", "AI provider analysis requires the desktop app");
+        return;
+      }
+      try {
+        const insight = await invoke<AiInsight>("ai_analyze", {
+          provider,
+          apiKey: key,
+          model: providerModels[provider],
+          baseUrl: provider === "local" ? localBaseUrl : "",
+          taskTitle: task.title,
+          taskDescription: task.description,
+          targetFile: task.file,
+        });
+        setAiInsight(insight);
+        setAnalyzedTaskIds((current) => new Set(current).add(task.id));
+        addActivity("ai", "Analyzed " + task.file + " with " + insight.provider);
+      } catch (error) {
+        addActivity("warn", String(error));
+      } finally {
+        setAnalyzing(false);
+      }
+      return;
+    }
+
     window.setTimeout(() => {
       setAnalyzedTaskIds((current) => new Set(current).add(task.id));
       setAnalyzing(false);
-      addActivity("ai", "Analyzed " + task.file);
+      addActivity("ai", "Analyzed " + task.file + " offline");
     }, 850);
   };
 
@@ -338,16 +477,102 @@ export default function App() {
           <button className="quiet-button" onClick={() => setGitOpen(true)}>
             <History size={16} /><span>Git history</span>
           </button>
+          <button className="quiet-button" onClick={() => setProviderOpen((openState) => !openState)}>
+            <KeyRound size={16} /><span>AI provider</span>
+          </button>
           <button className="icon-button" onClick={cycleTheme} title={"Theme: " + theme} aria-label={"Theme: " + theme}>
             <ThemeIcon size={17} />
           </button>
         </div>
       </header>
 
+      {providerOpen && (
+        <div className="provider-backdrop" onMouseDown={() => setProviderOpen(false)}>
+          <section className="provider-popover" role="dialog" aria-modal="true" aria-labelledby="provider-title"
+            onMouseDown={(event) => event.stopPropagation()}>
+            <div className="provider-heading">
+              <div>
+                <span className="panel-kicker">Analysis provider</span>
+                <h2 id="provider-title">Use AI with Bug Detective</h2>
+                <p>Use the built-in offline demo, a local open-source model, or your own cloud API account.</p>
+              </div>
+              <button className="icon-button" onClick={() => setProviderOpen(false)} aria-label="Close AI setup">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="provider-options">
+              {(Object.keys(AI_PROVIDERS) as AiProvider[]).map((option) => (
+                <button key={option} className={provider === option ? "provider-option active" : "provider-option"}
+                  onClick={() => {
+                    setProvider(option);
+                    setAiInsight(null);
+                    if (selectedTask) {
+                      setAnalyzedTaskIds((current) => {
+                        const next = new Set(current);
+                        next.delete(selectedTask.id);
+                        return next;
+                      });
+                    }
+                  }}>
+                  {option === "offline" ? <Sparkles size={16} /> : option === "local" ? <Monitor size={16} /> : <KeyRound size={16} />}
+                  <span><strong>{AI_PROVIDERS[option].name}</strong><small>{AI_PROVIDERS[option].description}</small></span>
+                </button>
+              ))}
+            </div>
+            {provider !== "offline" && (
+              <>
+                <div className="provider-setup" aria-label={AI_PROVIDERS[provider].name + " setup steps"}>
+                  {AI_PROVIDERS[provider].steps.map((step, index) => (
+                    <div className="provider-step" key={step}><span>{index + 1}</span><div><strong>{step}</strong></div></div>
+                  ))}
+                </div>
+                <div className="provider-notice">
+                  <AlertTriangle size={15} />
+                  <span>{AI_PROVIDERS[provider].notice}</span>
+                </div>
+                {AI_PROVIDERS[provider].setupUrl && (
+                  <button className="secondary-button provider-link-button"
+                    onClick={() => copyText(AI_PROVIDERS[provider].setupLabel || "Provider setup page", AI_PROVIDERS[provider].setupUrl || "")}>
+                    <Copy size={14} /> {AI_PROVIDERS[provider].setupLabel}
+                  </button>
+                )}
+                <div className="provider-config-grid">
+                  {provider === "local" && (
+                    <div className="provider-key-field">
+                      <label htmlFor="local-base-url">Local server URL</label>
+                      <input id="local-base-url" value={localBaseUrl} onChange={(event) => setLocalBaseUrl(event.target.value)}
+                        placeholder="http://127.0.0.1:11434/v1" autoComplete="off" spellCheck={false} />
+                    </div>
+                  )}
+                  <div className="provider-key-field">
+                    <label htmlFor="provider-model">Model name</label>
+                    <input id="provider-model" value={providerModels[provider]}
+                      onChange={(event) => setProviderModels((current) => ({ ...current, [provider]: event.target.value }))}
+                      autoComplete="off" spellCheck={false} />
+                  </div>
+                  <div className="provider-key-field">
+                    <label htmlFor="provider-api-key">{provider === "local" ? "Local server token (optional)" : AI_PROVIDERS[provider].name + " key"}</label>
+                    <input id="provider-api-key" type="password" value={apiKeys[provider]}
+                      onChange={(event) => setApiKeys((current) => ({ ...current, [provider]: event.target.value }))}
+                      placeholder={provider === "local" ? "Only if server authentication is enabled" : "Paste secret API key"}
+                      autoComplete="off" spellCheck={false} />
+                    <small>Held in memory only and cleared when the app closes. Never saved to localStorage.</small>
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="provider-footer">
+              <span>{AI_PROVIDERS[provider].notice}</span>
+              <button className="primary-button" onClick={() => setProviderOpen(false)}>Done</button>
+            </div>
+          </section>
+        </div>
+      )}
+
       <main>
         <section className="hero-row">
           <div>
-            <div className="eyebrow"><span className="live-dot" /> Offline mode · Nothing leaves this device</div>
+            <div className="eyebrow"><span className="live-dot" /> {provider === "offline" ? "Offline demo - Nothing leaves this device" : provider === "local" ? "Local open-source model - Loopback only" : AI_PROVIDERS[provider].name + " - Selected task context is sent"}</div>
             <h1>Turn bug context into a reviewed patch.</h1>
             <p>Extract the work, inspect the likely fix, and keep recovery commands close—without giving up control.</p>
           </div>
@@ -416,7 +641,15 @@ export default function App() {
               {tasks.slice().sort((a, b) => priorityRank[b.priority] - priorityRank[a.priority]).map((task, index) => (
                 <button key={task.id}
                   className={"task-card " + (task.id === selectedId ? "selected " : "") + (task.status === "done" ? "completed" : "")}
-                  onClick={() => setSelectedId(task.id)} style={{ animationDelay: (index * 45) + "ms" }}>
+                  onClick={() => {
+                    setSelectedId(task.id);
+                    setAiInsight(null);
+                    setAnalyzedTaskIds((current) => {
+                      const next = new Set(current);
+                      next.delete(task.id);
+                      return next;
+                    });
+                  }} style={{ animationDelay: (index * 45) + "ms" }}>
                   <div className="task-card-top">
                     <span className={"priority-dot " + task.priority} />
                     <span className="task-file">{shortPath(task.file)}</span>
@@ -473,7 +706,7 @@ export default function App() {
                   <div className="analysis-gate">
                     <div className="analysis-glyph"><Sparkles size={24} /></div>
                     <h3>Ready to inspect this issue</h3>
-                    <p>PatchTrail will use the task context to produce a local, deterministic patch preview and test outline.</p>
+                    <p>{provider === "offline" ? "PatchTrail will produce a deterministic local analysis, patch preview, and test outline." : "PatchTrail will send only this task's title, description, and target path to " + AI_PROVIDERS[provider].name + ". Patch previews and tests remain local."}</p>
                     <button className="primary-button" onClick={analyzeTask} disabled={analyzing}>
                       {analyzing ? <LoaderCircle className="spin" size={16} /> : <Play size={16} />}
                       {analyzing ? "Analyzing…" : "Analyze bug"}
@@ -483,8 +716,8 @@ export default function App() {
                   <div className="analysis-results">
                     <div className="finding-banner">
                       <div className="finding-icon"><Bug size={17} /></div>
-                      <div><span>Likely root cause · High confidence</span>
-                        <p>The success path assumes every response has a JSON body. Empty responses reach the parser and throw before UI state can settle.</p>
+                      <div><span>{aiInsight ? aiInsight.provider + " analysis - " + aiInsight.model : "Likely root cause - High confidence"}</span>
+                        <p className={aiInsight ? "ai-response" : ""}>{aiInsight?.text || "The success path assumes every response has a JSON body. Empty responses reach the parser and throw before UI state can settle."}</p>
                       </div>
                     </div>
 
