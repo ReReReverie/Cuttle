@@ -4,7 +4,7 @@ Cuttle is a local-first desktop engineering workspace that turns meeting notes, 
 
 ## Judge quick start — no rebuild required
 
-Download the latest [Cuttle GitHub Release](https://github.com/ReReReverie/PatchTrail/releases/latest) and choose the package for the judge's machine:
+Download the latest [Cuttle GitHub Release](https://github.com/ReReReverie/Cuttle/releases/latest) and choose the package for the judge's machine:
 
 | Judge machine | Download | Launch |
 |---|---|---|

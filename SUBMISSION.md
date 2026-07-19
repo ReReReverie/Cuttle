@@ -10,8 +10,8 @@ Cuttle is a local-first desktop workspace for turning messy engineering context 
 
 ## Repository and judge packages
 
-- Repository: https://github.com/ReReReverie/PatchTrail
-- Native downloads: GitHub Releases (https://github.com/ReReReverie/PatchTrail/releases/latest)
+- Repository: https://github.com/ReReReverie/Cuttle
+- Native downloads: GitHub Releases (https://github.com/ReReReverie/Cuttle/releases/latest)
 - Judge checklist: release/JUDGE_TESTING.md
 - Release targets: Windows x64, macOS Apple Silicon, macOS Intel, and Linux x64
 - Validation: Windows is locally smoke-tested; macOS and Linux packages are built and smoke-checked by native CI runners, with no manual hardware-testing claim

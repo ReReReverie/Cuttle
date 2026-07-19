@@ -2,7 +2,7 @@
 
 ## Download
 
-Use the latest GitHub Release (https://github.com/ReReReverie/PatchTrail/releases/latest) and select the package matching the judge's operating system:
+Use the latest GitHub Release (https://github.com/ReReReverie/Cuttle/releases/latest) and select the package matching the judge's operating system:
 
 - Windows x64: Cuttle-v<version>-windows-x64-portable.zip or the NSIS setup executable
 - macOS Apple Silicon: Cuttle-v<version>-macos-arm64.dmg
