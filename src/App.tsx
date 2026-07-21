@@ -245,7 +245,7 @@ function shortPath(path: string) {
 }
 
 export default function App() {
-  const [theme, setTheme] = useState<Theme>(() => ((localStorage.getItem("cuttle-theme") || localStorage.getItem("patchtrail-theme")) as Theme) || "system");
+  const [theme, setTheme] = useState<Theme>(() => (localStorage.getItem("cuttle-theme") as Theme) || "system");
   const [context, setContext] = useState(SAMPLE_CONTEXT);
   const [contextFile, setContextFile] = useState("");
   const [contextOpen, setContextOpen] = useState(true);
@@ -255,7 +255,7 @@ export default function App() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analyzedTaskIds, setAnalyzedTaskIds] = useState<Set<string>>(new Set());
   const [reviewTab, setReviewTab] = useState<"patch" | "tests">("patch");
-  const [repoPath, setRepoPath] = useState(() => (localStorage.getItem("cuttle-repo") || localStorage.getItem("patchtrail-repo")) || "");
+  const [repoPath, setRepoPath] = useState(() => localStorage.getItem("cuttle-repo") || "");
   const [commits, setCommits] = useState<Commit[]>(FALLBACK_COMMITS);
   const [selectedCommit, setSelectedCommit] = useState<Commit>(FALLBACK_COMMITS[0]);
   const [commitFiles, setCommitFiles] = useState<string[]>(FALLBACK_FILES);
