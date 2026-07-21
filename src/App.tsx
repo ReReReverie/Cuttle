@@ -564,7 +564,7 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <div className="brand">
-          <div className="brand-mark"><GitBranch size={18} /></div>
+          <div className="brand-mark"><img src="/app-icon.png" alt="" /></div>
           <div><strong>Cuttle</strong><span>Local engineering workspace</span></div>
         </div>
         <div className="topbar-actions">
